@@ -1,0 +1,13 @@
+{
+    "name": "Canteen",
+    "alias": "canteen",
+    "description": "",
+    "keywords": [],
+    "order": 0,
+    "providers": [
+        "Modules\\Canteen\\Providers\\CanteenServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

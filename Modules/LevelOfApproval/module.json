@@ -1,0 +1,13 @@
+{
+    "name": "LevelOfApproval",
+    "alias": "levelofapproval",
+    "description": "",
+    "keywords": [],
+    "order": 0,
+    "providers": [
+        "Modules\\LevelOfApproval\\Providers\\LevelOfApprovalServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

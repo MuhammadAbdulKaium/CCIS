@@ -1,0 +1,13 @@
+{
+    "name": "UserRoleManagement",
+    "alias": "userrolemanagement",
+    "description": "",
+    "keywords": [],
+    "order": 0,
+    "providers": [
+        "Modules\\UserRoleManagement\\Providers\\UserRoleManagementServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
