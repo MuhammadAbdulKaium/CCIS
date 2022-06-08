@@ -130,9 +130,56 @@ class VacancyReportController extends Controller
         }
     }
 
+    public function searchClass(Request $request){
+        if ($request->data != 'all') {
+            $allDesignationIds = EmployeeDesignation::where('make_as', $request->data)->get()->pluck('id')->toArray();
+            $allDesignation = EmployeeDesignation::whereIn('id', $allDesignationIds)->get()->groupBy('class');
+        
+            if (count($allDesignation) != 0) {
+                foreach ($allDesignation as $key => $value) {
+                    $abc[$key] = $key;
+                }
+                sort($abc);
+                return (array_values($abc));
+            }
+            else {
+                return [];
+            }
+        }
+        else {
+            $allDesignationIds = EmployeeDesignation::all()->pluck('id')->toArray();
+            $allDesignation = EmployeeDesignation::get()->groupBy('class');
+            if (count($allDesignation) != 0) {
+                foreach ($allDesignation as $key => $value) {
+                    $abc[$key] = $key;
+                }
+
+                return array_values($abc);
+            }
+            else {
+                return [];
+            }
+        }
+    }
+
+    public function searchDesignation(Request $request){
+        error_log($request->selectedClass);
+        if (count($request->sortedClasses) !== 0) {
+            
+            return EmployeeDesignation::whereIn('class', $request->sortedClasses)->get();
+        }
+        elseif ($request->data == 'all') {
+            # code...
+        }
+        else {
+            return [];
+        }
+    }
+
     public function searchvacancyByDepartmentCurrentInstitute(Request $request){
         $institute = Institute::find($this->academicHelper->getInstitute());
         $instituteIds = $request->instituteId;
+        $deptCategory = $request->deptCategory;
         $departmentIds = $request->departmentId;
         $designationIds = $request->designationId;
         $today = date("Y-m-d");
@@ -151,13 +198,15 @@ class VacancyReportController extends Controller
             $allInstitute = Institute::whereIn('id', $instituteIds)->get();     
         }
         
+        error_log(is_array($departmentIds[0]));
         if($departmentIds[0] == 'all'){            
             $allDepartmentIds = EmployeeDepartment::pluck('id')->toArray();
             $allDepartment = EmployeeDepartment::all();            
         }
-        elseif (is_array($departmentIds[0])) {
-            $allDepartmentIds = EmployeeDepartment::whereIn('id', $departmentIds[0])->pluck('id')->toArray();
-            $allDepartment = EmployeeDepartment::whereIn('id', $departmentIds[0])->get();
+        elseif (is_array($departmentIds) && $departmentIds[0] != 'all') {
+            return $departmentIds[0];
+            $allDepartmentIds = EmployeeDepartment::whereIn('id', $departmentIds)->pluck('id')->toArray();
+            $allDepartment = EmployeeDepartment::whereIn('id', $departmentIds)->get();
         }
         else{
             $allDepartmentIds = $departmentIds;

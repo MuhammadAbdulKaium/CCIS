@@ -94,8 +94,9 @@
                         </div>
                         <div class="col-sm-2">
                             <label class="control-label" style="display: block" for="Class">Class</label>
-                            <select name="class[]" id="" class="form-control select-class" multiple required>
-                                <option value="all" selected>All</option>
+                            <select name="class[]" id="abc" class="form-control select-class" multiple required>
+                                <option value="">Select Class*</option>                                
+                                <option value="all">All</option>
                                 <option value="1">1st Class Officer</option>
                                 <option value="2">2nd Class Employee</option>
                                 <option value="3">3rd Class Employee</option>
@@ -105,16 +106,18 @@
                         <div class="col-sm-2">
                             <label class="control-label" style="display: block" for="designation">Designation</label>
                             <select name="desigId[]" id="" class="form-control select-designation" multiple required>
-                                <option value="all" selected>All</option>
+                                <option value="">Select Designation*</option> 
+                                <option value="all">All</option>
                                 
                             </select>
                         </div>
+                        
+                    </div>
+                    <div class="row">
                         <div class="col-sm-2">
                             <label class="control-label" style="display: block" for="academic_level">To Date</label>
                             <input type="date" value="{{ $toDate }}" name="toDate" class="form-control select-to-date" required>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-sm-4" >
                             <button type="button" class="btn btn-success search-btn"  style="margin-top: 23px;"><i class="fa fa-search"></i> Search</button>
                             <button type="button" class="btn btn-primary print-btn" style="margin-top: 23px; margin-left: 20px"><i class="fa fa-print"></i> Print</button>
@@ -137,6 +140,8 @@
     $(document).ready(function (){
         var deptCategory;
         var departmentIds = [];
+        var sortedClasses = [];
+        var classes;
 
         $('.select-institute').select2({
             
@@ -151,19 +156,16 @@
             
         });
         $('.select-class').select2({
-
+            placeholder: "Select Class*",
         });
         $('.select-designation').select2({
-
+            placeholder: "Select Designation*",
         });
 
         $('.select-department-category').change(function () {
             deptCategory = $('.select-department-category').val();
-            // console.log(deptCategory[0]);
-            // console.log($(this).val());
 
             if (deptCategory[0] != 'all') {
-                console.log($(this).val());
                 $_token = "{{ csrf_token() }}";
                 $.ajax({
                     headers: {
@@ -193,8 +195,8 @@
                         data.forEach((element, i) => {
                             departmentIds[i] = element.id
                         });
-
-                        var department = '<option value="'+departmentIds+'" selected>All</option>';
+                        
+                        var department = '<option value="all" selected>All</option>';
                         data.forEach(element => {
                             department += '<option value="'+element.id+'">'+element.name+'</option>'
                         });
@@ -212,6 +214,119 @@
                 });
                 // Ajax Request End
             }
+        });
+
+        $('.select-designation-group').change(function () {
+            deptGroup = $('.select-designation-group').val();
+
+            $_token = "{{ csrf_token() }}";
+            $.ajax({
+                headers: {
+                    'X-CSRF-Token': $('meta[name=_token]').attr('content')
+                },
+                url: "{{ url('/employee/vacancy-report-department/search-class') }}",
+                type: 'GET',
+                cache: false,
+                data: {
+                    '_token': $_token,
+                    'data': $(this).val(),
+                }, //see the _token
+                datatype: 'application/json',
+            
+                beforeSend: function () {
+                    // show waiting dialog
+                    waitingDialog.show('Loading...');
+                    console.log('beforeSend');
+                },
+            
+                success: function (data) {
+                    // hide waiting dialog
+                    waitingDialog.hide();
+            
+                    console.log('success');
+
+                    data.forEach((element, i) => {
+                        sortedClasses[i] = element
+                    });
+                    
+
+                    if (data.length !== 0) {                        
+                        classes = '<option value="all">All</option>';
+                        data.forEach(element => {
+                            if (element == 1) {
+                                classes += '<option value="'+1+'">1st Class Officer</option>'
+                            }
+                            else if (element == 2) {
+                                classes += '<option value="'+2+'">2nd Class Employee</option>'
+                            }
+                            else if (element == 3) {
+                                classes += '<option value="'+3+'">3rd Class Employee</option>'
+                            }
+                            else if (element == 4) {
+                                classes += '<option value="'+4+'">4th Class Employee</option>'
+                            }
+                        });
+                    }
+                    else {
+                        classes = '<option value=""></option>';
+                    }    
+                    
+                    $('.select-class').html(classes);
+                    
+                },
+            
+                error: function (error) {
+                    // hide waiting dialog
+                    waitingDialog.hide();
+            
+                    console.log(error);
+                    console.log('error');
+                }
+            });
+            // Ajax Request End
+        });
+
+        $('.select-class').change(function () {
+            console.log('HI');
+            $_token = "{{ csrf_token() }}";
+            $.ajax({
+                headers: {
+                    'X-CSRF-Token': $('meta[name=_token]').attr('content')
+                },
+                url: "{{ url('/employee/vacancy-report-department/search-designation') }}",
+                type: 'GET',
+                cache: false,
+                data: {
+                    '_token': $_token,
+                    'selectedClass': $(this).val(),
+                    'sortedClasses': sortedClasses,
+                }, //see the _token
+                datatype: 'application/json',
+            
+                beforeSend: function () {
+                    // show waiting dialog
+                    waitingDialog.show('Loading...');
+                    console.log('beforeSend');
+                },
+            
+                success: function (data) {
+                    // hide waiting dialog
+                    waitingDialog.hide();
+            
+                    console.log('success');
+
+                    
+                },
+            
+                error: function (error) {
+                    // hide waiting dialog
+                    waitingDialog.hide();
+            
+                    console.log(error);
+                    console.log('error');
+                }
+            });
+            // Ajax Request End
         });
 
         $('.search-btn').click(function() {
@@ -244,7 +359,6 @@
                         // hide waiting dialog
                         waitingDialog.hide();
                         if(data) {
-                            console.log(data);
                             $('.marks-table-holder').html(data);   
                         }
                         else {
