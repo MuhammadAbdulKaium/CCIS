@@ -126,12 +126,8 @@ class InventoryReportController extends Controller
 
         if($stores[0] == 'all'){
             $all = 'all';
-            // unset($stores[0]);
-            // error_log(count($stores));
             
             $stores1 = InventoryStore::pluck('id')->toArray();
-            error_log($stores1[8]);
-            
         }
         else{
             $all = InventoryStore::findOrFail($request->storeId);
@@ -184,7 +180,6 @@ class InventoryReportController extends Controller
        
         $receivedPurchasesArray = json_decode($receivedPurchases);
 
-        error_log('directStockOutItems');
         $directStockOutItems = StockOutDetailsModel::join('inventory_direct_stock_out', 'inventory_direct_stock_out.id', 'inventory_direct_stock_out_details.stock_out_id')
         ->join('cadet_stock_products', 'cadet_stock_products.id', 'inventory_direct_stock_out_details.item_id')
         ->join('cadet_inventory_store', 'cadet_inventory_store.id', 'inventory_direct_stock_out.store_id')
@@ -203,8 +198,6 @@ class InventoryReportController extends Controller
 
         $directStockOutItemsArray = json_decode($directStockOutItems);
 
-
-        error_log('FromInventory');
         $issueFromInventory = IssueFromInventoryDetailsModel::join('inventory_issue_from', 'inventory_issue_from.id', 'inventory_issue_details.issue_id')
         ->join('cadet_stock_products', 'cadet_stock_products.id', 'inventory_issue_details.item_id')
         ->join('cadet_inventory_store', 'cadet_inventory_store.id', 'inventory_issue_from.store_id')
@@ -239,9 +232,6 @@ class InventoryReportController extends Controller
         }
 
         $uom = CadetInventoryProduct::with('uom')->where('id', $productId)->first();
-        error_log('uom');
-        error_log($uom);
-        error_log($uom->uom->symbol_name);
 
         $openingQty = 0;
         $openingRate = 0;
@@ -279,7 +269,6 @@ class InventoryReportController extends Controller
             }
             elseif((strtotime($result[$i]['tran_date']) >= strtotime($fromDate)) && (strtotime($result[$i]['tran_date']) <= strtotime($toDate))){
                 if($result[$i]['type'] == 'inward'){
-                    error_log($closingRate);
                     $closingQty += $result[$i]['qty'];
                     $closingValue += $result[$i]['amount'];
                     $closingRate = $closingValue/$closingQty;
@@ -344,7 +333,6 @@ class InventoryReportController extends Controller
         $groups = array();
         if($request->group[0] == 'all'){
             $groups = StockGroup::pluck('id')->toArray();
-            error_log($groups[0]);
         }
         else {
             $groups = $request->group;
@@ -366,12 +354,8 @@ class InventoryReportController extends Controller
     }
 
     public function stockSearchStore(Request $request){
-        error_log('HI HI HI HI HI');
-        error_log($request->groups[0]);
-
+        
         $categories = array();
-
-        error_log($request->category[0]);
 
         if($request->category[0] == 'all'){
             $categories = StockCategory::pluck('id')->toArray();
@@ -389,7 +373,6 @@ class InventoryReportController extends Controller
             ->get();
             
             
-            error_log($productStoreIds);
             $productStoreIds1 = StockInDetailsModel::with('detailStockInWise', 'detailProductWise')
             ->selct('store_id')
             ->whereIn('stock_group', $request->groups)
@@ -503,7 +486,6 @@ class InventoryReportController extends Controller
             $productIds = $request->productId;
         }
 
-        error_log('Purchase Receive');
         $receivedPurchases = PurchaseReceiveDetailsModel::join('inventory_purchase_receive_info', 'inventory_purchase_receive_info.id', 'inventory_purchase_receive_details.pur_receive_id')
         ->join('cadet_stock_products', 'cadet_stock_products.id', 'inventory_purchase_receive_details.item_id')
         ->join('cadet_inventory_store', 'cadet_inventory_store.id', 'inventory_purchase_receive_info.store_id')
@@ -599,7 +581,6 @@ class InventoryReportController extends Controller
             }
         }
 
-        error_log('COUNT');
         $productsInArray = array_column($result, 'id');
         $productsInArray = array_unique($productsInArray);
         $productsInArray = array_values($productsInArray);

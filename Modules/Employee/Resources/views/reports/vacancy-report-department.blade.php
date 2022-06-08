@@ -49,7 +49,7 @@
 
                 <div class="box-body">
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <label class="control-label" style="display: block" for="institute">Institute</label>
                             <select name="instituteId[]" id="" class="form-control select-institute" multiple required>
                                 @if (($role->name == 'super-admin') && ($currentInstitute == null))
@@ -61,7 +61,14 @@
                                 @endif
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
+                            <label class="control-label" style="display: block" for="departmentCategory">Dept. Category</label>
+                            <select name="deptCategory[]" id="" class="form-control select-department-category" multiple required>
+                                <option value="all" selected>All</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
                             <label class="control-label" style="display: block" for="department">Department</label>
                             <select name="departmentId[]" id="" class="form-control select-department" multiple required>
                                 <option value="all" selected>All</option>
@@ -74,9 +81,9 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-sm-3">
-                            <label class="control-label" style="display: block" for="designation">Designation Group</label>
-                            <select name="designationId[]" id="" class="form-control select-designation" required>
+                        <div class="col-sm-2">
+                            <label class="control-label" style="display: block" for="designationGroup">Designation Group</label>
+                            <select name="designationId[]" id="" class="form-control select-designation-group" required>
                                 <option value="all" selected>All</option>
                                 <option value="1">Teaching Category</option>
                                 <option value="2">Officer Category</option>
@@ -84,7 +91,24 @@
                                 <option value="4">Other Category</option>
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
+                            <label class="control-label" style="display: block" for="Class">Class</label>
+                            <select name="class[]" id="" class="form-control select-class" multiple required>
+                                <option value="all" selected>All</option>
+                                <option value="1">1st Class Officer</option>
+                                <option value="2">2nd Class Employee</option>
+                                <option value="3">3rd Class Employee</option>
+                                <option value="4">4th Class Employee</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="control-label" style="display: block" for="designation">Designation</label>
+                            <select name="desigId[]" id="" class="form-control select-designation" multiple required>
+                                <option value="all" selected>All</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
                             <label class="control-label" style="display: block" for="academic_level">To Date</label>
                             <input type="date" value="{{ $toDate }}" name="toDate" class="form-control select-to-date" required>
                         </div>
@@ -113,16 +137,25 @@
         $('.select-institute').select2({
             
         });
+        $('.select-department-category').select2({
+            
+        });
         $('.select-department').select2({
             
         });
-        $('.select-designation').select2({
+        $('.select-designation-group').select2({
             
+        });
+        $('.select-class').select2({
+
+        });
+        $('.select-designation').select2({
+
         });
 
         $('.search-btn').click(function() {
             departmentId = $('.select-department').val();
-            designationId = $('.select-designation').val();
+            designationId = $('.select-designation-group').val();
             toDate = $('.select-to-date').val();
 
             if(departmentId && designationId && toDate){
