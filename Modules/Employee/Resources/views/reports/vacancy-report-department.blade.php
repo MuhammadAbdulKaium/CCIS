@@ -252,7 +252,7 @@
                     
 
                     if (data.length !== 0) {                        
-                        classes = '<option value="all">All</option>';
+                        var classes = '<option value="all">All</option>';
                         data.forEach(element => {
                             if (element == 1) {
                                 classes += '<option value="'+1+'">1st Class Officer</option>'
@@ -302,8 +302,7 @@
             if ($('.select-designation-group').val() == 'all') {
                 sortedClasses = [1,2,3,4]
             }
-            console.log(sortedClasses);
-            console.log(desigGroup);
+            
             $_token = "{{ csrf_token() }}";
             $.ajax({
                 headers: {
@@ -332,7 +331,6 @@
             
                     console.log('success');
 
-                    console.log(data);
 
                     data.forEach((element, i) => {
                         designationIds[i] = element.id

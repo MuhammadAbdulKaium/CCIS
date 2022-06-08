@@ -39,7 +39,7 @@ class VacancyReportController extends Controller
     public function getVacancyReportDesignation(){
         $currentInstitute = Institute::find($this->academicHelper->getInstitute());
         $user = Auth::user();
-        $designations = EmployeeDesignation::all();
+        $designations = EmployeeDesignation::whereIn('make_as', [1,2,3,4])->get();
         $role = $user->role();
         $toDate = date("Y-m-d");
         if(($role->name == 'super-admin') && ($currentInstitute == null)){
@@ -71,7 +71,7 @@ class VacancyReportController extends Controller
 
         if($designationIds[0] == 'all'){            
             $allDesignationIds = EmployeeDesignation::pluck('id')->toArray();
-            $allDesignation = EmployeeDesignation::all();            
+            $allDesignation = EmployeeDesignation::whereIn('make_as', [1,2,3,4])->get();            
         }
         else{
             $allDesignationIds = $designationIds;
@@ -125,8 +125,11 @@ class VacancyReportController extends Controller
         if ($request->data[0] !== 'all') {
             return EmployeeDepartment::whereIn('dept_type', $request->data)->get();
         }
-        else {
+        elseif ($request->data[0] === 'all') {
             return EmployeeDepartment::whereIn('dept_type', [1,2])->get();
+        }
+        else {
+            return [];
         }
     }
 
