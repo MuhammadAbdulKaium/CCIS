@@ -121,6 +121,15 @@ class VacancyReportController extends Controller
         return view('employee::reports.vacancy-report-department', compact('department', 'currentInstitute', 'allInstitute', 'role', 'toDate'));
     }
 
+    public function searchDepartment(Request $request){
+        if ($request->data) {
+            return EmployeeDepartment::whereIn('dept_type', $request->data)->get();
+        }
+        else {
+            return [];
+        }
+    }
+
     public function searchvacancyByDepartmentCurrentInstitute(Request $request){
         $institute = Institute::find($this->academicHelper->getInstitute());
         $instituteIds = $request->instituteId;
@@ -141,10 +150,14 @@ class VacancyReportController extends Controller
             $allInstituteIds = $instituteIds;
             $allInstitute = Institute::whereIn('id', $instituteIds)->get();     
         }
-
+        
         if($departmentIds[0] == 'all'){            
             $allDepartmentIds = EmployeeDepartment::pluck('id')->toArray();
             $allDepartment = EmployeeDepartment::all();            
+        }
+        elseif (is_array($departmentIds[0])) {
+            $allDepartmentIds = EmployeeDepartment::whereIn('id', $departmentIds[0])->pluck('id')->toArray();
+            $allDepartment = EmployeeDepartment::whereIn('id', $departmentIds[0])->get();
         }
         else{
             $allDepartmentIds = $departmentIds;

@@ -65,7 +65,8 @@
                             <label class="control-label" style="display: block" for="departmentCategory">Dept. Category</label>
                             <select name="deptCategory[]" id="" class="form-control select-department-category" multiple required>
                                 <option value="all" selected>All</option>
-                                
+                                <option value="1">Student Department</option>
+                                <option value="2">Teaching Department</option>
                             </select>
                         </div>
                         <div class="col-sm-2">
@@ -134,6 +135,9 @@
 @section('scripts')
 <script>
     $(document).ready(function (){
+        var deptCategory;
+        var departmentIds = [];
+
         $('.select-institute').select2({
             
         });
@@ -151,6 +155,63 @@
         });
         $('.select-designation').select2({
 
+        });
+
+        $('.select-department-category').change(function () {
+            deptCategory = $('.select-department-category').val();
+            // console.log(deptCategory[0]);
+            // console.log($(this).val());
+
+            if (deptCategory[0] != 'all') {
+                console.log($(this).val());
+                $_token = "{{ csrf_token() }}";
+                $.ajax({
+                    headers: {
+                        'X-CSRF-Token': $('meta[name=_token]').attr('content')
+                    },
+                    url: "{{ url('/employee/vacancy-report-department/search-department') }}",
+                    type: 'GET',
+                    cache: false,
+                    data: {
+                        '_token': $_token,
+                        'data': $(this).val(),
+                    }, //see the _token
+                    datatype: 'application/json',
+                
+                    beforeSend: function () {
+                        // show waiting dialog
+                        waitingDialog.show('Loading...');
+                        console.log('beforeSend');
+                    },
+                
+                    success: function (data) {
+                        // hide waiting dialog
+                        waitingDialog.hide();
+                
+                        console.log('success');
+
+                        data.forEach((element, i) => {
+                            departmentIds[i] = element.id
+                        });
+
+                        var department = '<option value="'+departmentIds+'" selected>All</option>';
+                        data.forEach(element => {
+                            department += '<option value="'+element.id+'">'+element.name+'</option>'
+                        });
+
+                        $('.select-department').html(department);
+                    },
+                
+                    error: function (error) {
+                        // hide waiting dialog
+                        waitingDialog.hide();
+                
+                        console.log(error);
+                        console.log('error');
+                    }
+                });
+                // Ajax Request End
+            }
         });
 
         $('.search-btn').click(function() {

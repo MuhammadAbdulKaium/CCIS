@@ -441,6 +441,7 @@ Route::group(['middleware' => ['web', 'auth', 'access-permission'], 'prefix' => 
 
     // Vacancy Report (Department)
     Route::get('/vacancy-report-department/report', 'VacancyReportController@getVacancyReportDepartment');
+    Route::get('/vacancy-report-department/search-department', 'VacancyReportController@searchDepartment');
     Route::get('/vacancy-report-department/department-report', 'VacancyReportController@searchvacancyByDepartmentCurrentInstitute');
     // Route::get('/leave/status/report/pdf', 'LeaveManagementController@getLeaveStatusReportPDF');
     // Route::post('/manage/leave/report', 'LeaveManagementController@downloadEmployeeLeave');
