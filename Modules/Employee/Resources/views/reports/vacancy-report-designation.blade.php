@@ -283,8 +283,9 @@
         $('.search-btn').click(function() {
             instituteId = $('.select-institute').val();
             designationId = $('.select-designation').val();
+            classId = $('.select-class').val();
 
-            if(instituteId && designationId){
+            if(instituteId && designationId && classId){
                 $('.select-type').val('search');
                 // Ajax Request Start
                 $_token = "{{ csrf_token() }}";
