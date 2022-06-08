@@ -108,7 +108,7 @@ class VacancyReportController extends Controller
         $currentInstitute = Institute::find($this->academicHelper->getInstitute());
         $user = Auth::user();
         $role = $user->role();
-        $department = EmployeeDepartment::all();
+        $department = EmployeeDepartment::whereIn('dept_type', [1,2])->get();
         $toDate = date("Y-m-d");
         
         if(($role->name == 'super-admin') && ($currentInstitute == null)){
@@ -122,16 +122,16 @@ class VacancyReportController extends Controller
     }
 
     public function searchDepartment(Request $request){
-        if ($request->data) {
+        if ($request->data[0] !== 'all') {
             return EmployeeDepartment::whereIn('dept_type', $request->data)->get();
         }
         else {
-            return [];
+            return EmployeeDepartment::whereIn('dept_type', [1,2])->get();
         }
     }
 
     public function searchClass(Request $request){
-        if ($request->data != 'all') {
+        if ($request->data !== 'all') {
             $allDesignationIds = EmployeeDesignation::where('make_as', $request->data)->get()->pluck('id')->toArray();
             $allDesignation = EmployeeDesignation::whereIn('id', $allDesignationIds)->get()->groupBy('class');
         
@@ -139,6 +139,7 @@ class VacancyReportController extends Controller
                 foreach ($allDesignation as $key => $value) {
                     $abc[$key] = $key;
                 }
+                
                 sort($abc);
                 return (array_values($abc));
             }
@@ -147,8 +148,8 @@ class VacancyReportController extends Controller
             }
         }
         else {
-            $allDesignationIds = EmployeeDesignation::all()->pluck('id')->toArray();
-            $allDesignation = EmployeeDesignation::get()->groupBy('class');
+            $allDesignationIds = EmployeeDesignation::whereIn('make_as', [1,2,3,4])->get()->pluck('id')->toArray();
+            $allDesignation = EmployeeDesignation::whereIn('id', $allDesignationIds)->get()->groupBy('class');
             if (count($allDesignation) != 0) {
                 foreach ($allDesignation as $key => $value) {
                     $abc[$key] = $key;
@@ -163,13 +164,18 @@ class VacancyReportController extends Controller
     }
 
     public function searchDesignation(Request $request){
-        error_log($request->selectedClass);
-        if (count($request->sortedClasses) !== 0) {
+        if ($request->selectedClass[0] === 'all' && count($request->sortedClasses) !== 0 && $request->desigGroup !== 'all') {
             
-            return EmployeeDesignation::whereIn('class', $request->sortedClasses)->get();
+            return EmployeeDesignation::whereIn('class', $request->sortedClasses)->where('make_as', $request->desigGroup)->get();
         }
-        elseif ($request->data == 'all') {
-            # code...
+        elseif ($request->selectedClass[0] !== 'all' && $request->desigGroup !== 'all') {
+            return EmployeeDesignation::whereIn('class', $request->selectedClass)->whereIn('class', $request->sortedClasses)->where('make_as', $request->desigGroup)->get();
+        }
+        elseif ($request->selectedClass[0] === 'all' && count($request->sortedClasses) !== 0 && $request->desigGroup === 'all') {
+            return EmployeeDesignation::whereIn('class', $request->sortedClasses)->whereIn('make_as', [1,2,3,4])->get();
+        }
+        elseif ($request->selectedClass[0] !== 'all' && count($request->sortedClasses) !== 0 && $request->desigGroup === 'all') {
+            return EmployeeDesignation::whereIn('class', $request->selectedClass)->whereIn('make_as', [1,2,3,4])->get();
         }
         else {
             return [];

@@ -107,7 +107,6 @@
                             <label class="control-label" style="display: block" for="designation">Designation</label>
                             <select name="desigId[]" id="" class="form-control select-designation" multiple required>
                                 <option value="">Select Designation*</option> 
-                                <option value="all">All</option>
                                 
                             </select>
                         </div>
@@ -139,9 +138,12 @@
 <script>
     $(document).ready(function (){
         var deptCategory;
-        var departmentIds = [];
         var sortedClasses = [];
         var classes;
+        var desigGroup;
+        
+        var departmentIds = [];
+        var designationIds = [];
 
         $('.select-institute').select2({
             
@@ -150,7 +152,7 @@
             
         });
         $('.select-department').select2({
-            
+            placeholder: "Select Department*",
         });
         $('.select-designation-group').select2({
             
@@ -163,61 +165,60 @@
         });
 
         $('.select-department-category').change(function () {
+            departmentIds = [];
             deptCategory = $('.select-department-category').val();
+           
+            $_token = "{{ csrf_token() }}";
+            $.ajax({
+                headers: {
+                    'X-CSRF-Token': $('meta[name=_token]').attr('content')
+                },
+                url: "{{ url('/employee/vacancy-report-department/search-department') }}",
+                type: 'GET',
+                cache: false,
+                data: {
+                    '_token': $_token,
+                    'data': $(this).val(),
+                }, //see the _token
+                datatype: 'application/json',
+            
+                beforeSend: function () {
+                    // show waiting dialog
+                    waitingDialog.show('Loading...');
+                    console.log('beforeSend');
+                },
+            
+                success: function (data) {
+                    // hide waiting dialog
+                    waitingDialog.hide();
+            
+                    console.log('success');
 
-            if (deptCategory[0] != 'all') {
-                $_token = "{{ csrf_token() }}";
-                $.ajax({
-                    headers: {
-                        'X-CSRF-Token': $('meta[name=_token]').attr('content')
-                    },
-                    url: "{{ url('/employee/vacancy-report-department/search-department') }}",
-                    type: 'GET',
-                    cache: false,
-                    data: {
-                        '_token': $_token,
-                        'data': $(this).val(),
-                    }, //see the _token
-                    datatype: 'application/json',
-                
-                    beforeSend: function () {
-                        // show waiting dialog
-                        waitingDialog.show('Loading...');
-                        console.log('beforeSend');
-                    },
-                
-                    success: function (data) {
-                        // hide waiting dialog
-                        waitingDialog.hide();
-                
-                        console.log('success');
+                    data.forEach((element, i) => {
+                        departmentIds[i] = element.id
+                    });
+                    
+                    var department = '<option value="all" selected>All</option>';
+                    data.forEach(element => {
+                        department += '<option value="'+element.id+'">'+element.name+'</option>'
+                    });
 
-                        data.forEach((element, i) => {
-                            departmentIds[i] = element.id
-                        });
-                        
-                        var department = '<option value="all" selected>All</option>';
-                        data.forEach(element => {
-                            department += '<option value="'+element.id+'">'+element.name+'</option>'
-                        });
-
-                        $('.select-department').html(department);
-                    },
-                
-                    error: function (error) {
-                        // hide waiting dialog
-                        waitingDialog.hide();
-                
-                        console.log(error);
-                        console.log('error');
-                    }
-                });
-                // Ajax Request End
-            }
+                    $('.select-department').html(department);
+                },
+            
+                error: function (error) {
+                    // hide waiting dialog
+                    waitingDialog.hide();
+            
+                    console.log(error);
+                    console.log('error');
+                }
+            });
+            // Ajax Request End           
         });
 
         $('.select-designation-group').change(function () {
-            deptGroup = $('.select-designation-group').val();
+            desigGroup = $('.select-designation-group').val();
 
             $_token = "{{ csrf_token() }}";
             $.ajax({
@@ -272,7 +273,13 @@
                     }    
                     
                     $('.select-class').html(classes);
-                    $('.select-class').select2("val", "");
+                    $('.select-class').select2({
+                        placeholder: "Select Class*",
+                    });
+                    $('.select-designation').html("");
+                    $('.select-designation').select2({
+                        placeholder: "Select Designation*",
+                    });
                 },
             
                 error: function (error) {
@@ -286,8 +293,17 @@
             // Ajax Request End
         });
 
+        
+
         $('.select-class').change(function () {
-            console.log('HI');
+            var designation = null;
+            designationIds = [];
+            desigGroup = $('.select-designation-group').val();
+            if ($('.select-designation-group').val() == 'all') {
+                sortedClasses = [1,2,3,4]
+            }
+            console.log(sortedClasses);
+            console.log(desigGroup);
             $_token = "{{ csrf_token() }}";
             $.ajax({
                 headers: {
@@ -300,6 +316,7 @@
                     '_token': $_token,
                     'selectedClass': $(this).val(),
                     'sortedClasses': sortedClasses,
+                    'desigGroup': desigGroup,
                 }, //see the _token
                 datatype: 'application/json',
             
@@ -315,7 +332,22 @@
             
                     console.log('success');
 
+                    console.log(data);
+
+                    data.forEach((element, i) => {
+                        designationIds[i] = element.id
+                    });
                     
+
+                    designation = '<option value="all">All</option>';
+                    data.forEach(element => {
+                        designation += '<option value="'+element.id+'">'+element.name+'</option>'
+                    });
+
+                    $('.select-designation').html(designation);
+                    $('.select-designation').select2({
+                        placeholder: "Select Designation*",
+                    });
                 },
             
                 error: function (error) {
@@ -328,13 +360,17 @@
             });
             // Ajax Request End
         });
+        
 
         $('.search-btn').click(function() {
             departmentId = $('.select-department').val();
-            designationId = $('.select-designation-group').val();
+            deptCategoryId = $('.select-department-category').val();
+            designationGroupId = $('.select-designation-group').val();
+            classId = $('.select-class').val();
+            designationId = $('.select-designation').val();
             toDate = $('.select-to-date').val();
 
-            if(departmentId && designationId && toDate){
+            if(departmentId && designationGroupId && toDate && classId && designationId){
                 $('.select-type').val('search');
                 // Ajax Request Start
                 $_token = "{{ csrf_token() }}";
