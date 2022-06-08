@@ -272,7 +272,7 @@
                     }    
                     
                     $('.select-class').html(classes);
-                    
+                    $('.select-class').select2("val", "");
                 },
             
                 error: function (error) {
