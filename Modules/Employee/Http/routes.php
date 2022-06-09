@@ -108,7 +108,7 @@ Route::group(['middleware' => ['web', 'auth', 'access-permission'], 'prefix' => 
 
     // Employee Profile Details Report
     Route::get('/profile/details/report','EmployeeProfileDetailsReportController@index')->name('employee.profile-details');
-    Route::get('/profile/details/report/search','EmployeeProfileDetailsReportController@searchEmployeeReport');
+    Route::post('/profile/details/report','EmployeeProfileDetailsReportController@searchEmployeeReport');
     Route::get('/profile/details/report/search-employee','EmployeeProfileDetailsReportController@searchEmployee');
     
     

@@ -60,6 +60,7 @@ class VacancyReportController extends Controller
         $allInstituteIds = array();
         $allDesignationIds = array();
 
+        
         if($instituteIds[0] == 'all'){            
             $allInstituteIds = Institute::pluck('id')->toArray();
             $allInstitute = Institute::all();  
@@ -69,14 +70,26 @@ class VacancyReportController extends Controller
             $allInstitute = Institute::whereIn('id', $instituteIds)->get();     
         }
 
-        if($designationIds[0] == 'all'){            
-            $allDesignationIds = EmployeeDesignation::pluck('id')->toArray();
-            $allDesignation = EmployeeDesignation::whereIn('make_as', [1,2,3,4])->get();            
+        $allDesignation = EmployeeDesignation::get();
+
+        if($request->desigGroup !== 'all') {
+            $allDesignation = $allDesignation->whereIn('make_as', $request->desigGroup);
+            
         }
-        else{
-            $allDesignationIds = $designationIds;
-            $allDesignation = EmployeeDesignation::whereIn('id', $designationIds)->get();
+        if($request->classes[0] !== 'all') {
+            $allDesignation = $allDesignation->whereIn('class', $request->classes);
+            
         }
+        $allDesignation = $allDesignation->values();
+
+        // if($designationIds[0] === 'all'){    
+        //     $allDesignationIds = EmployeeDesignation::pluck('id')->toArray();
+        //     $allDesignation = EmployeeDesignation::whereIn('make_as', [1,2,3,4])->get();            
+        // }
+        // else{
+        //     $allDesignationIds = $designationIds;
+        //     $allDesignation = EmployeeDesignation::whereIn('id', $designationIds)->get();
+        // }
         
         $held = array(0 => array());
 
@@ -167,22 +180,41 @@ class VacancyReportController extends Controller
     }
 
     public function searchDesignation(Request $request){
-        if ($request->selectedClass[0] === 'all' && count($request->sortedClasses) !== 0 && $request->desigGroup !== 'all') {
+        $designations = EmployeeDesignation::get();
+
+        if($request->desigGroup !== 'all') {
+            $designations = $designations->whereIn('make_as', $request->desigGroup);
             
-            return EmployeeDesignation::whereIn('class', $request->sortedClasses)->where('make_as', $request->desigGroup)->get();
         }
-        elseif ($request->selectedClass[0] !== 'all' && $request->desigGroup !== 'all') {
-            return EmployeeDesignation::whereIn('class', $request->selectedClass)->whereIn('class', $request->sortedClasses)->where('make_as', $request->desigGroup)->get();
+        if($request->classes[0] !== 'all') {
+            $designations = $designations->whereIn('class', $request->classes);
+            
         }
-        elseif ($request->selectedClass[0] === 'all' && count($request->sortedClasses) !== 0 && $request->desigGroup === 'all') {
-            return EmployeeDesignation::whereIn('class', $request->sortedClasses)->whereIn('make_as', [1,2,3,4])->get();
-        }
-        elseif ($request->selectedClass[0] !== 'all' && count($request->sortedClasses) !== 0 && $request->desigGroup === 'all') {
-            return EmployeeDesignation::whereIn('class', $request->selectedClass)->whereIn('make_as', [1,2,3,4])->get();
-        }
-        else {
-            return [];
-        }
+        return $designations->values();
+
+        // if ($request->desigGroup === 'all' && $request->classes[0] === 'all') {
+        //     // error_log('From all all'); 
+        //     $this->employeeDesignation = EmployeeDesignation::whereIn('class', [1,2,3,4])->whereIn('make_as', [1,2,3,4])->get();
+        //     return $this->employeeDesignation;
+        // }
+        // elseif ($request->desigGroup === 'all' && $request->classes[0] !== 'all') {
+        //     // error_log('From all NotAll');
+        //     $this->employeeDesignation = EmployeeDesignation::whereIn('class', $request->classes)->whereIn('make_as', [1,2,3,4])->get();
+        //     return $this->employeeDesignation;
+        // }
+        // elseif ($request->desigGroup !== 'all' && $request->classes[0] === 'all') {
+        //     // error_log('From NotAll all');
+        //     $this->employeeDesignation = EmployeeDesignation::whereIn('class', [1,2,3,4])->whereIn('make_as', $request->desigGroup)->get();
+        //     return $this->employeeDesignation;
+        // }
+        // elseif ($request->desigGroup !== 'all' && $request->classes[0] !== 'all') {
+        //     // error_log('From NotAll NotAll');
+        //     $this->employeeDesignation = EmployeeDesignation::whereIn('class', $request->classes)->where('make_as', $request->desigGroup)->get();
+        //     return $this->employeeDesignation;
+        // }
+        // else {
+        //     return [];
+        // }
     }
 
     public function searchvacancyByDepartmentCurrentInstitute(Request $request){

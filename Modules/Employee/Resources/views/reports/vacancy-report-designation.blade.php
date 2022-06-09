@@ -62,7 +62,7 @@
                             </div>
                             <div class="col-sm-2">
                                 <label class="control-label" style="display: block" for="designationGroup">Designation Group</label>
-                                <select name="designationGroupId[]" id="" class="form-control select-designation-group" required>
+                                <select name="designationGroupId[]" id="select-designation-group" class="form-control change" required>
                                     <option value="all" selected>All</option>
                                     <option value="1">Teaching Category</option>
                                     <option value="2">Officer Category</option>
@@ -72,9 +72,8 @@
                             </div>
                             <div class="col-sm-2">
                                 <label class="control-label" style="display: block" for="Class">Class</label>
-                                <select name="classes[]" id="abc" class="form-control select-class" multiple required>
-                                    <option value="">Select Class*</option>                                
-                                    <option value="all">All</option>
+                                <select name="classes[]" id="select-class" class="form-control change" multiple required>                                
+                                    <option value="all" selected>All</option>
                                     <option value="1">1st Class Officer</option>
                                     <option value="2">2nd Class Employee</option>
                                     <option value="3">3rd Class Employee</option>
@@ -121,108 +120,25 @@
 @section('scripts')
 <script>
     $(document).ready(function (){
-        var desigGroup;
-        var sortedClasses = [];
-        var desigGroup;
-
-        var designationIds = [];
 
         $('.select-institute').select2({
 
         });
-        $('.select-designation-group').select2({
+        $('.change').select2({
             
         });
-        $('.select-class').select2({
-            placeholder: "Select Class*",
-        });
+        // $('.change').select2({
+        //     placeholder: "Select Class*",
+        // });
         $('.select-designation').select2({
             
         });
 
-        $('.select-designation-group').change(function () {
-            desigGroup = $('.select-designation-group').val();
+       
 
-            $_token = "{{ csrf_token() }}";
-            $.ajax({
-                headers: {
-                    'X-CSRF-Token': $('meta[name=_token]').attr('content')
-                },
-                url: "{{ url('/employee/vacancy-report-department/search-class') }}",
-                type: 'GET',
-                cache: false,
-                data: {
-                    '_token': $_token,
-                    'data': $(this).val(),
-                }, //see the _token
-                datatype: 'application/json',
-            
-                beforeSend: function () {
-                    // show waiting dialog
-                    waitingDialog.show('Loading...');
-                    console.log('beforeSend');
-                },
-            
-                success: function (data) {
-                    // hide waiting dialog
-                    waitingDialog.hide();
-            
-                    console.log('success');
-
-                    data.forEach((element, i) => {
-                        sortedClasses[i] = element
-                    });
-                    
-
-                    if (data.length !== 0) {                        
-                        var classes = '<option value="all">All</option>';
-                        data.forEach(element => {
-                            if (element == 1) {
-                                classes += '<option value="'+1+'">1st Class Officer</option>'
-                            }
-                            else if (element == 2) {
-                                classes += '<option value="'+2+'">2nd Class Employee</option>'
-                            }
-                            else if (element == 3) {
-                                classes += '<option value="'+3+'">3rd Class Employee</option>'
-                            }
-                            else if (element == 4) {
-                                classes += '<option value="'+4+'">4th Class Employee</option>'
-                            }
-                        });
-                    }
-                    else {
-                        var classes = '<option value=""></option>';
-                    }    
-                    
-                    $('.select-class').html(classes);
-                    $('.select-class').select2({
-                        placeholder: "Select Class*",
-                    });
-                    $('.select-designation').html("");
-                    $('.select-designation').select2({
-                        placeholder: "Select Designation*",
-                    });
-                },
-            
-                error: function (error) {
-                    // hide waiting dialog
-                    waitingDialog.hide();
-            
-                    console.log(error);
-                    console.log('error');
-                }
-            });
-            // Ajax Request End
-        });
-
-        $('.select-class').change(function () {
-            var designation = null;
-            designationIds = [];
-            desigGroup = $('.select-designation-group').val();
-            if ($('.select-designation-group').val() == 'all') {
-                sortedClasses = [1,2,3,4]
-            }
+        $('.change').change(function () {
+            var desigGroup = $('#select-designation-group').val();
+            var classes = $('#select-class').val();
             
             $_token = "{{ csrf_token() }}";
             $.ajax({
@@ -234,9 +150,8 @@
                 cache: false,
                 data: {
                     '_token': $_token,
-                    'selectedClass': $(this).val(),
-                    'sortedClasses': sortedClasses,
                     'desigGroup': desigGroup,
+                    'classes': classes,
                 }, //see the _token
                 datatype: 'application/json',
             
@@ -249,24 +164,16 @@
                 success: function (data) {
                     // hide waiting dialog
                     waitingDialog.hide();
-            
-                    console.log('success');
-
-
-                    data.forEach((element, i) => {
-                        designationIds[i] = element.id
-                    });
                     
 
-                    designation = '<option value="all">All</option>';
+                    var designation = '<option value="all" selected>All</option>';
                     data.forEach(element => {
-                        designation += '<option value="'+element.id+'">'+element.name+'</option>'
+                        designation += '<option value="'+element.id+'">'+element.name+'</option>';
                     });
+                    console.log(designation);
 
                     $('.select-designation').html(designation);
-                    $('.select-designation').select2({
-                        placeholder: "Select Designation*",
-                    });
+                    $('.select-designation').select2({  });
                 },
             
                 error: function (error) {
@@ -280,12 +187,14 @@
             // Ajax Request End
         });
 
+
         $('.search-btn').click(function() {
             instituteId = $('.select-institute').val();
             designationId = $('.select-designation').val();
-            classId = $('.select-class').val();
+            var desigGroup = $('#select-designation-group').val();
+            var classes = $('#select-class').val();
 
-            if(instituteId && designationId && classId){
+            if(instituteId && designationId && classes){
                 $('.select-type').val('search');
                 // Ajax Request Start
                 $_token = "{{ csrf_token() }}";
@@ -296,7 +205,7 @@
                     url: "{{ url('/employee/vacancy-report-designation/designation-report') }}",
                     type: 'get',
                     cache: false,
-                    data: $('form#search-results-form').serialize(),
+                    data: $('form#search-results-form').serialize() +"&desigGroup="+desigGroup+"&classes="+classes,
                     
                     datatype: 'application/json',
                 
