@@ -127,9 +127,7 @@
         $('.change').select2({
             
         });
-        // $('.change').select2({
-        //     placeholder: "Select Class*",
-        // });
+        
         $('.select-designation').select2({
             
         });
@@ -205,7 +203,7 @@
                     url: "{{ url('/employee/vacancy-report-designation/designation-report') }}",
                     type: 'get',
                     cache: false,
-                    data: $('form#search-results-form').serialize() +"&desigGroup="+desigGroup+"&classes="+classes,
+                    data: $('form#search-results-form').serialize() +"&desigGroup="+desigGroup+"&classes="+classes+"&designationId="+designationId,
                     
                     datatype: 'application/json',
                 
